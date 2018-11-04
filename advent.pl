@@ -24,7 +24,7 @@ die("--day unprovided, or not a number between 1 and 25\n") unless $day =~ /^[0-
 die("--year isn't a valid year\n") unless $year =~ /^[0-9]+$/ && int($year) >= 2015;
 die("--side unprovided, or not 'a' or 'b'\n") unless $side =~ /^[ab]$/;
 if ($in) {
-    @in = ($in);
+    @in = split(/;/, $in);
 } else {
     my $infile = "input/$year/$day";
     @in = readfile($infile);
