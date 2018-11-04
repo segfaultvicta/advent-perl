@@ -11,22 +11,29 @@ our @EXPORT_OK   = qw(a b);
 our %EXPORT_TAGS = ( DEFAULT => [qw(a b)] );
 
 sub a { 
-    # if I get rid of ALL of this and replace it with say "bluh"; it works ?_?
     my $in = shift;
     my @chars = split(//, $in);
     my $first = $chars[0];
     my $total = 0;
-    say "first character is $first, input length is $len";
     foreach my $i (0 .. $#chars) {
         my $char = $chars[$i];
         my $next = $i == $#chars ? $first : $chars[$i+1];
-        $total = $char eq $next ? $char : 0;
+        $total += $char eq $next ? $char : 0;
     }
     say "total is $total";
 }
 
 sub b { 
-    say "blah";
+    my $in = shift;
+    my @chars = split(//, $in);
+    my $total = 0;
+    my $len = scalar(@chars) + 1;
+    foreach my $i (0 .. $#chars) {
+        my $char = $chars[$i];
+        my $next = $chars[($i + int($len / 2)) % ($len - 1)];
+        $total += $char eq $next ? $char : 0;
+    }
+    say "total is $total";
 }
 
 1;

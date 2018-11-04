@@ -32,5 +32,5 @@ if ($in) {
 
 my $mod = "Advent::Year$year" . "::" . "Day$day";
 my $sub = $mod . "::" . "$side";
-eval "require $mod";
+eval "require $mod" or die@!;
 $sub->(@in);
