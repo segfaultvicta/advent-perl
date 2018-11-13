@@ -71,8 +71,6 @@ sub a  {
 
 sub b  { 
     my @limits;
-    my @current;
-    my @reverse;
     my $delay = -1;
 
     foreach my $line (@_) {
@@ -84,50 +82,13 @@ sub b  {
     }
 
     OUTER: while (1) {
-        if ($delay % 100 == 0) { say "delay $delay"; }
         $delay++;
-        foreach my $i (0..$#limits) {
-            $current[$i] = 0;
-            $reverse[$i] = 0;
-        }
-        for (my $visiting = -1 * $delay; $visiting <= $#limits; $visiting++) {
-            #say "\nVISITING $visiting";
-            for (my $i = 0; $i <= $#limits; $i++) {
-                #print "$i: ";
-                if ($limits[$i] eq "X") {
-                    #if ($visiting == $i ) { print "(.)"; }
-                    #else { print "..."; }
-                } else {
-                    for (my $j = 0; $j < $limits[$i]; $j++) {
-                        if ($current[$i] == $j) {
-                            if ($visiting == $i && $j == 0 ) { 
-                                #print "(S) ";
-                                if ($visiting >= 0) {
-                                    #print "!";
-                                    next OUTER;
-                                }
-                            }
-                            #else { print "[S] "; }
-                        } else {
-                            #if ($visiting == $i && $j == 0 ) { print "( ) "; }
-                            #else { print "[ ] "; }
-                        }
-                    }
-                }
-                #print "\n";
-            }
-            for (my $i = 0; $i <= $#limits; $i++) {
-                next if $limits[$i] eq "X";
-                if ($reverse[$i]) {
-                    my $n = $current[$i] - 1;
-                    $current[$i] = $n == -1 ? 1 : $n;
-                    $reverse[$i] = $n == -1 ? 0 : 1;
-                } else {
-                    my $n = $current[$i] + 1;
-                    $current[$i] = $n == $limits[$i] ? $current[$i] - 1 : $n;
-                    $reverse[$i] = $n == $limits[$i] ? 1 : 0;
-                }
-            }
+        for (my $layer = 0; $layer <= $#limits; $layer++) {
+            my $timestep = $layer + $delay;
+            my $range = $limits[$layer];
+
+            next if $range eq "X";            
+            next OUTER if ($timestep % (2*($range -1)) == 0); # SUCK IT
         }
         last;
     }
