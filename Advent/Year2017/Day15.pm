@@ -38,7 +38,7 @@ sub a  {
 sub b  { 
     my $count = 0;
     my $i = 0;
-    my $max = 1;
+    my $max = 5;
     #my $max = 5000000;
     my $gen_a = build_generator_a();
     my $gen_b = build_generator_b();
@@ -56,9 +56,9 @@ sub build_generator_a {
     #my $value = 722;
     my $factor = 16807;
     my $div = 2147483647;
-    return sub {
+    return sub {    
         while ($value % 4 != 0) {
-            my $value = ($value * $factor) % $div;
+            $value = ($value * $factor) % $div;
         }
         return $value;
     }
@@ -71,7 +71,7 @@ sub build_generator_b {
     my $div = 2147483647;
     return sub {
         while ($value % 8 != 0) {
-            my $value = ($value * $factor) % $div;
+            $value = ($value * $factor) % $div;
         }
         return $value;
     }
