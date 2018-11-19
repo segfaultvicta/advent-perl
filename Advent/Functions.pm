@@ -8,11 +8,53 @@ use List::Util qw(reduce);
 
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
-our @EXPORT_OK   = qw(h t knot);
-our %EXPORT_TAGS = ( DEFAULT => [qw(h t knot)] );
+our @EXPORT_OK   = qw(h t knot highlight_idx highlight_string_element highlight_int_element);
+our %EXPORT_TAGS = ( DEFAULT => [qw(h t knot highlight_idx highlight_string_element highlight_int_element)] );
 
 sub h { $_[0]; }
 sub t { shift; @_ };
+
+sub highlight_string_element {
+    my $element = shift;
+    my @array = @_;
+    my $acc = "";
+    for(my $i = 0; $i <= $#array; $i++) {
+        if ($array[$i] eq $element) {
+            $acc .= "($array[$i]) ";
+        } else {
+            $acc .= "$array[$i] ";
+        }
+    }
+    return $acc;
+}
+
+sub highlight_int_element {
+    my $element = shift;
+    my @array = @_;
+    my $acc = "";
+    for(my $i = 0; $i <= $#array; $i++) {
+        if ($array[$i] == $element) {
+            $acc .= "($array[$i]) ";
+        } else {
+            $acc .= "$array[$i] ";
+        }
+    }
+    return $acc;
+}
+
+sub highlight_idx {
+    my $position = shift;
+    my @array = @_;
+    my $acc = "";
+    for(my $i = 0; $i <= $#array; $i++) {
+        if ($i == $position) {
+            $acc .= "($array[$i]) ";
+        } else {
+            $acc .= "$array[$i] ";
+        }
+    }
+    return $acc;
+}
 
 sub knot {
     my @bytes;

@@ -38,42 +38,46 @@ sub a  {
 sub b  { 
     my $count = 0;
     my $i = 0;
-    my $max = 5;
-    #my $max = 5000000;
+    #my $max = 5;
+    my $max = 5000000;
     my $gen_a = build_generator_a();
     my $gen_b = build_generator_b();
     while ($i < $max) {
         my $a_val = $gen_a->();
         my $b_val = $gen_b->();
-        say "a: $a_val b: $b_val";
+        $count++ if ((substr sprintf("%032b", $a_val), -16) eq (substr sprintf("%032b", $b_val), -16));
         $i++;
     }
-
+    say $count;
 }
 
 sub build_generator_a {
-    my $value = 65;
-    #my $value = 722;
+    #my $value = 65;
+    my $value = 722;
     my $factor = 16807;
     my $div = 2147483647;
     return sub {    
         while ($value % 4 != 0) {
             $value = ($value * $factor) % $div;
         }
-        return $value;
+        my $retval = $value;
+        $value = ($value * $factor) % $div;
+        return $retval;
     }
 }
 
 sub build_generator_b {
-    my $value = 8921;
-    #my $value = 354;
+    #my $value = 8921;
+    my $value = 354;
     my $factor = 48271;
     my $div = 2147483647;
     return sub {
         while ($value % 8 != 0) {
             $value = ($value * $factor) % $div;
         }
-        return $value;
+        my $retval = $value;
+        $value = ($value * $factor) % $div;
+        return $retval;
     }
 }
 
