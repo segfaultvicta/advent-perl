@@ -128,14 +128,14 @@ sub process {
         # If no values are in the queue, the program waits for a value to be sent to it. 
         # Programs do not continue to the next instruction until they have received a value. 
         # Values are received in the order they are sent.
+        #say ".receive";
         if (defined $frequency) {
+            #say ".with frequency $frequency";
             set($registers, $+{first}, $frequency);
             return ($pc + 1, "NOM");
         } else {
             return ($pc, "DEADLOCK");
         }
-        # return the current program counter if we didn't actually recieve a frequency
-        return ($pc + 1, $frequency);
     } elsif ($+{command} eq "snd") {
         # snd X sends the value of X to the other program. 
         # These values wait in a queue until that program is ready to receive them. 
@@ -146,13 +146,14 @@ sub process {
         # jgz X Y jumps with an offset of the value of Y, but only if the value
         # of X is greater than zero. (An offset of 2 skips the next instruction, 
         # an offset of -1 jumps to the previous instruction, and so on.)
-        $val = get($registers, $+{first});
+        $val = r($registers, $+{first});
         my $offset = r($registers, $+{second});
         my $jump = $pc + 1;
+        #say ".jump if $val > 0 by offset $offset";
         if ($val > 0) {
             $jump = $pc + $offset;
         }
-        return ($jump, $frequency);
+        return ($jump, undef);
     }
 }
 
@@ -179,7 +180,6 @@ sub b  {
     my $deadlocked_on_one_side = 0;
     my $count = 0;
 
-    # NEED TO HAVE SOME KIND OF CHECK TO SEE IF PROGRAM TERMINATED
     while (1) {
         my $other = $curr;
         $curr = $curr == 0 ? 1 : 0;
@@ -191,10 +191,16 @@ sub b  {
             $out = $message_queues[$curr][0];
         }
 
+        my $stroffset = $curr == 1 ? "\t\t\t" : "";
+
         my $instruction = $_[$pc];
-        #say "[$curr] \@$pc: $instruction";
+        #say "$stroffset [$curr] \@$pc: $instruction";
+        my $b_before = $register_banks[$curr]{b};
         ($pc, $out) = process($pc, $registers, $instruction, $out);
+        my $b_after = $register_banks[$curr]{b};
+        #say "$stroffset register b was $b_before and is now $b_after";
         $pcs[$curr] = $pc;
+        #say "$stroffset new PC $pc";
 
         # out can be undef, an integer value, NOM, or DEADLOCK
         # an integer value should be hucked into the other program's message queue
@@ -202,17 +208,25 @@ sub b  {
         # DEADLOCK indicates that the program is deadlocked
         if (defined $out) {
             if ($out eq "NOM") {
-                pop @{ $message_queues[$curr] };
+                my $consumed = shift @{ $message_queues[$curr] };
                 $deadlocked_on_one_side = 0;
-                #say "$curr just consumed a value";
+                if ($consumed < 0) {
+                    #say "$stroffset $pc $curr receiving $consumed";
+                }
+                #say "$stroffset $curr <-- $consumed --- $other";
             } elsif ($out eq "DEADLOCK") {
+                #say "$stroffset deadlocked";
                 if ($deadlocked_on_one_side == 1) {
-                    #say "DEADLOCK";
+                    say "============ DEADLOCK ============";
                     last;
                 }
                 $deadlocked_on_one_side = 1;
             } else {
                 push @{ $message_queues[$other] }, $out;
+                if ($out < 0) {
+                    #say "$stroffset $pc $curr sending $out";
+                }
+                #say "$stroffset $curr --- $out ---> $other";
                 if ($curr == 1) {
                     $count++;
                 }
