@@ -122,7 +122,7 @@ sub has_cospatial_partners {
         $q_idx != $_;
     } keys %$particles;
 
-    return (scalar @cospatials) > 1;
+    return (scalar @cospatials) > 0;
 }
 
 1;
